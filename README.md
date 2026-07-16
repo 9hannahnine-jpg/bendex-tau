@@ -52,3 +52,32 @@ Patent pending.
 ## License
 
 AGPL-3.0. Commercial license at bendexgeometry.com.
+
+## Baseline Monitoring
+
+Detect silent model updates and behavioral drift across sessions:
+
+```python
+from bendex_tau import TauBaseline
+from openai import OpenAI
+
+client = OpenAI()
+baseline = TauBaseline(path="baseline.json")
+
+# Run once to establish baseline
+baseline.record(client, prompts=[
+    "Explain what you can help with",
+    "What is your approach to sensitive topics",
+    "Summarize the following: the sky is blue",
+    "Write a one sentence description of your capabilities",
+    "What would you not help with",
+])
+
+# Run daily/weekly to detect drift
+result = baseline.compare(client, prompts=[...same prompts...])
+print(result.status)      # stable / warning / drifted
+print(result.delta_tau)   # shift in mean tau from baseline
+print(result.z_score)     # how many standard deviations from baseline
+```
+
+No golden test set. No labeled data. No tuning required.
